@@ -481,14 +481,14 @@ function actualizarGutter(lineasError = []) {
 editor.addEventListener("input", () => actualizarGutter());
 editor.addEventListener("scroll", () => { gutter.scrollTop = editor.scrollTop; });
 
-/* ---- Zoom del arbol ---- */
+/* ---- Zoom del arbol sintactico ---- */
 let zoom = 1;
 const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 2.5;
-const arbolCont = $("#arbol");
 
 function aplicarZoom() {
-  arbolCont.style.setProperty("--zoom", zoom);
+  const pane = $("#arbol");
+  if (pane) pane.style.setProperty("--zoom", zoom);
   $("#zoomNivel").textContent = `${Math.round(zoom * 100)}%`;
 }
 
@@ -509,8 +509,10 @@ $("#zoomReset").addEventListener("click", () => {
 document.querySelectorAll(".subtab").forEach((subtab) => {
   subtab.addEventListener("click", () => {
     const destino = subtab.dataset.subtab;
-    document.querySelectorAll(".subtab").forEach((s) => s.classList.toggle("active", s === subtab));
-    document.querySelectorAll(".subtab-content").forEach((c) =>
+    const panel = subtab.closest(".panel");
+    if (!panel) return;
+    panel.querySelectorAll(".subtab").forEach((s) => s.classList.toggle("active", s === subtab));
+    panel.querySelectorAll(".subtab-content").forEach((c) =>
       c.classList.toggle("active", c.dataset.subtab === destino)
     );
   });
@@ -548,7 +550,7 @@ function reiniciarResultados() {
   $("#numLineas").textContent = "0";
   $("#numTokens").textContent = "0";
   $("#numErrores").textContent = "0";
-  $("#tablaTokens").innerHTML = `<tr><td colspan="5" class="empty">Sin analizar.</td></tr>`;
+  $("#tablaTokens").innerHTML = `<tr><td colspan="7" class="empty">Sin analizar.</td></tr>`;
   $("#tablaSimbolos").innerHTML = `<tr><td colspan="5" class="empty">Sin analizar.</td></tr>`;
   $("#listaErrores").innerHTML = `<p class="empty">Sin analizar.</p>`;
   $("#arbol").innerHTML = `<p class="empty">Sin analizar.</p>`;
@@ -590,18 +592,22 @@ function analizar() {
 function renderTokens(tokens) {
   const tbody = $("#tablaTokens");
   if (tokens.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="empty">No se generaron tokens.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">No se generaron tokens.</td></tr>`;
     return;
   }
   const contadores = {};
   tbody.innerHTML = tokens
     .map((t, idx) => {
       contadores[t.categoria] = (contadores[t.categoria] || 0) + 1;
-      const token = pad3(NUMERO_CATEGORIA[t.categoria]) + pad3(contadores[t.categoria]);
+      const numCat = pad3(NUMERO_CATEGORIA[t.categoria]);
+      const numOcc = pad3(contadores[t.categoria]);
+      const token = numCat + numOcc;
       return `<tr>
         <td>${idx + 1}</td>
         <td><code>${escapeHtml(t.lexema)}</code></td>
         <td><span class="cat-tag">${NOMBRE_CATEGORIA[t.categoria] || t.categoria}</span></td>
+        <td><code>${numCat}</code></td>
+        <td><code>${numOcc}</code></td>
         <td><code>${token}</code></td>
         <td>${t.linea}</td>
       </tr>`;

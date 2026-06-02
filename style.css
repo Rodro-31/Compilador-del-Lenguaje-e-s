@@ -81,6 +81,15 @@ html, body {
 .subtab-content { display: none; }
 .subtab-content.active { display: block; }
 
+.zoom-pane {
+  transform: scale(var(--zoom, 1));
+  transform-origin: top center;
+  transition: transform 0.1s ease;
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto;
+}
+
 /* Barra de zoom del arbol */
 .zoom-bar {
   display: flex;
@@ -244,9 +253,6 @@ html, body {
 .arbol {
   font-family: var(--mono);
   font-size: 0.82rem;
-  transform: scale(var(--zoom, 1));
-  transform-origin: top center;
-  transition: transform 0.1s ease;
   width: max-content;
   margin: 0 auto;
 }
