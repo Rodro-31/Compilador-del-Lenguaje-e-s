@@ -163,7 +163,7 @@ const NOMBRE_CATEGORIA = {
   Literal: "Literal",
 };
 
-/* Numero de cada categoria (orden del PDF) para construir el token */
+/* Numero de cada categoria para construir el token */
 const NUMERO_CATEGORIA = {
   PalabraReservada: 1,
   OperadorAritmetico: 2,
