@@ -163,6 +163,23 @@ const NOMBRE_CATEGORIA = {
   Literal: "Literal",
 };
 
+/* Numero de cada categoria (orden del PDF) para construir el token */
+const NUMERO_CATEGORIA = {
+  PalabraReservada: 1,
+  OperadorAritmetico: 2,
+  Constante: 3,
+  Identificador: 4,
+  SimboloAgrupacion: 5,
+  Comparador: 6,
+  OperadorLogico: 7,
+  SimboloInicio: 8,
+  Delimitador: 9,
+  OperadorAsignacion: 10,
+  Literal: 11,
+};
+
+const pad3 = (n) => String(n).padStart(3, "0");
+
 /* ============================================================
    TABLA DE SIMBOLOS
    Detecta declaraciones: (ent|doble) @id [ = valor ... ] ;
@@ -502,7 +519,7 @@ function reiniciarResultados() {
   $("#numLineas").textContent = "0";
   $("#numTokens").textContent = "0";
   $("#numErrores").textContent = "0";
-  $("#tablaTokens").innerHTML = `<tr><td colspan="4" class="empty">Sin analizar.</td></tr>`;
+  $("#tablaTokens").innerHTML = `<tr><td colspan="5" class="empty">Sin analizar.</td></tr>`;
   $("#tablaSimbolos").innerHTML = `<tr><td colspan="5" class="empty">Sin analizar.</td></tr>`;
   $("#listaErrores").innerHTML = `<p class="empty">Sin analizar.</p>`;
   $("#arbol").innerHTML = `<p class="empty">Sin analizar.</p>`;
@@ -544,18 +561,22 @@ function analizar() {
 function renderTokens(tokens) {
   const tbody = $("#tablaTokens");
   if (tokens.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="empty">No se generaron tokens.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">No se generaron tokens.</td></tr>`;
     return;
   }
+  const contadores = {};
   tbody.innerHTML = tokens
-    .map(
-      (t, idx) => `<tr>
+    .map((t, idx) => {
+      contadores[t.categoria] = (contadores[t.categoria] || 0) + 1;
+      const token = pad3(NUMERO_CATEGORIA[t.categoria]) + pad3(contadores[t.categoria]);
+      return `<tr>
         <td>${idx + 1}</td>
         <td><code>${escapeHtml(t.lexema)}</code></td>
         <td><span class="cat-tag">${NOMBRE_CATEGORIA[t.categoria] || t.categoria}</span></td>
+        <td><code>${token}</code></td>
         <td>${t.linea}</td>
-      </tr>`
-    )
+      </tr>`;
+    })
     .join("");
 }
 
