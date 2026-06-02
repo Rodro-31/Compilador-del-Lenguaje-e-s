@@ -13,8 +13,8 @@
   </header>
 
   <main class="layout">
-    <!-- Columna izquierda: editor -->
-    <section class="panel editor-panel">
+    <!-- Codigo fuente -->
+    <section class="panel">
       <div class="panel-head">
         <h2>Codigo fuente</h2>
         <div class="actions">
@@ -36,16 +36,24 @@
       </div>
     </section>
 
-    <!-- Columna derecha: resultados -->
-    <section class="panel results-panel">
-      <nav class="tabs" id="tabs">
-        <button class="tab active" data-tab="tokens">Tokens</button>
-        <button class="tab" data-tab="simbolos">Tabla de simbolos</button>
-        <button class="tab" data-tab="errores">Errores</button>
-        <button class="tab" data-tab="arbol">Arbol sintactico</button>
-      </nav>
+    <!-- Control de errores -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Control de errores</h2>
+      </div>
+      <div class="panel-body">
+        <div id="listaErrores" class="errores">
+          <p class="empty">Sin analizar.</p>
+        </div>
+      </div>
+    </section>
 
-      <div class="tab-content active" data-tab="tokens">
+    <!-- Tokens generados -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Tokens generados</h2>
+      </div>
+      <div class="panel-body">
         <div class="table-scroll">
           <table class="data-table">
             <thead>
@@ -57,8 +65,14 @@
           </table>
         </div>
       </div>
+    </section>
 
-      <div class="tab-content" data-tab="simbolos">
+    <!-- Tabla de simbolos -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Tabla de simbolos</h2>
+      </div>
+      <div class="panel-body">
         <div class="table-scroll">
           <table class="data-table">
             <thead>
@@ -70,14 +84,20 @@
           </table>
         </div>
       </div>
+    </section>
 
-      <div class="tab-content" data-tab="errores">
-        <div id="listaErrores" class="errores">
-          <p class="empty">Sin analizar.</p>
+    <!-- Arbol sintactico -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Arbol sintactico</h2>
+        <div class="zoom-bar">
+          <button id="zoomOut" class="btn btn-ghost zoom-btn" title="Alejar">-</button>
+          <span id="zoomNivel">100%</span>
+          <button id="zoomIn" class="btn btn-ghost zoom-btn" title="Acercar">+</button>
+          <button id="zoomReset" class="btn btn-ghost" title="Reajustar">Reajustar</button>
         </div>
       </div>
-
-      <div class="tab-content" data-tab="arbol">
+      <div class="arbol-viewport">
         <div id="arbol" class="arbol">
           <p class="empty">Sin analizar.</p>
         </div>

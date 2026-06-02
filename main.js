@@ -464,15 +464,28 @@ function actualizarGutter(lineasError = []) {
 editor.addEventListener("input", () => actualizarGutter());
 editor.addEventListener("scroll", () => { gutter.scrollTop = editor.scrollTop; });
 
-/* ---- Pestañas ---- */
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    const destino = tab.dataset.tab;
-    document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === tab));
-    document.querySelectorAll(".tab-content").forEach((c) =>
-      c.classList.toggle("active", c.dataset.tab === destino)
-    );
-  });
+/* ---- Zoom del arbol ---- */
+let zoom = 1;
+const ZOOM_MIN = 0.3;
+const ZOOM_MAX = 2.5;
+const arbolCont = $("#arbol");
+
+function aplicarZoom() {
+  arbolCont.style.setProperty("--zoom", zoom);
+  $("#zoomNivel").textContent = `${Math.round(zoom * 100)}%`;
+}
+
+$("#zoomIn").addEventListener("click", () => {
+  zoom = Math.min(ZOOM_MAX, +(zoom + 0.1).toFixed(2));
+  aplicarZoom();
+});
+$("#zoomOut").addEventListener("click", () => {
+  zoom = Math.max(ZOOM_MIN, +(zoom - 0.1).toFixed(2));
+  aplicarZoom();
+});
+$("#zoomReset").addEventListener("click", () => {
+  zoom = 1;
+  aplicarZoom();
 });
 
 /* ---- Botones ---- */
@@ -595,6 +608,8 @@ function renderArbol(arbol, errores) {
     return;
   }
   cont.innerHTML = `<ul class="tree">${nodoHtml(arbol)}</ul>`;
+  zoom = 1;
+  aplicarZoom();
 }
 
 function nodoHtml(nodo) {

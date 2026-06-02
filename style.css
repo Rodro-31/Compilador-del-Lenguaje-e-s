@@ -33,15 +33,12 @@ html, body {
 .subtitle { margin: 4px 0 0; opacity: 0.9; font-size: 0.85rem; }
 
 .layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   padding: 16px;
-  align-items: start;
-}
-
-@media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .panel {
@@ -60,7 +57,26 @@ html, body {
 }
 .panel-head h2 { margin: 0; font-size: 1rem; }
 
+.panel-body { padding: 12px 14px; }
+
 .actions { display: flex; gap: 8px; }
+
+/* Barra de zoom del arbol */
+.zoom-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.zoom-btn {
+  width: 32px;
+  padding: 6px 0;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+#zoomNivel { min-width: 44px; text-align: center; color: var(--text); }
 
 .btn {
   border: 1px solid var(--border);
@@ -137,33 +153,7 @@ html, body {
 .stat-error strong { color: var(--red); }
 
 /* Resultados */
-.tabs {
-  display: flex;
-  gap: 2px;
-  padding: 8px 8px 0;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-.tab {
-  border: none;
-  background: transparent;
-  color: var(--text-dim);
-  padding: 9px 14px;
-  border-radius: 8px 8px 0 0;
-  cursor: pointer;
-  font-size: 0.86rem;
-}
-.tab:hover { color: var(--text); }
-.tab.active {
-  color: #fff;
-  background: var(--bg-soft);
-  border-bottom: 2px solid var(--accent);
-}
-
-.tab-content { display: none; padding: 12px 14px; height: 420px; overflow: auto; }
-.tab-content.active { display: block; }
-
-.table-scroll { overflow: auto; max-height: 100%; }
+.table-scroll { overflow: auto; max-height: 360px; }
 
 .data-table {
   width: 100%;
@@ -225,36 +215,97 @@ html, body {
   font-weight: 600;
 }
 
-/* Arbol sintactico */
-.arbol { font-family: var(--mono); font-size: 0.85rem; }
-.tree, .tree ul { list-style: none; margin: 0; padding-left: 18px; }
-.tree li {
+/* Arbol sintactico (descendente y centrado) */
+.arbol-viewport {
+  overflow: auto;
+  padding: 18px 14px;
+  max-height: 520px;
+}
+.arbol {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  transform: scale(var(--zoom, 1));
+  transform-origin: top center;
+  transition: transform 0.1s ease;
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* Tecnica clasica de arbol descendente (inline-block + conectores) */
+.tree, .tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   position: relative;
-  padding: 3px 0 3px 14px;
+  white-space: nowrap;
+  text-align: center;
 }
-.tree li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  border-left: 1px solid var(--border);
+/* Espacio para los conectores que bajan del padre a cada grupo de hijos */
+.tree ul { padding-top: 20px; }
+
+.tree li {
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+  position: relative;
+  padding: 20px 10px 0 10px;
 }
+
+/* Conectores: cada hijo dibuja media barra horizontal arriba.
+   ::before = mitad izquierda, ::after = mitad derecha + bajada vertical al nodo */
+.tree li::before,
 .tree li::after {
   content: "";
   position: absolute;
-  left: 0;
-  top: 14px;
-  width: 12px;
-  border-top: 1px solid var(--border);
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 20px;
+  border-top: 2px solid var(--border);
 }
-.tree > li::before, .tree > li::after { display: none; }
-.tree > li { padding-left: 0; }
+.tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid var(--border);
+}
+
+/* Linea vertical que baja del padre hasta la barra de los hijos */
+.tree ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 20px;
+  border-left: 2px solid var(--border);
+}
+
+/* Hijo unico: linea recta (solo la bajada del padre) sin barra horizontal */
+.tree li:only-child::before,
+.tree li:only-child::after { display: none; }
+.tree li:only-child { padding-top: 0; }
+
+/* Extremos de la fila: quitar la mitad sobrante y redondear esquinas */
+.tree li:first-child::before,
+.tree li:last-child::after { border: 0 none; }
+.tree li:last-child::before {
+  border-right: 2px solid var(--border);
+  border-radius: 0 5px 0 0;
+}
+.tree li:first-child::after {
+  border-radius: 5px 0 0 0;
+}
+
+/* Nodo raiz: sin conectores arriba */
+.tree > li { padding-top: 0; }
+.tree > li::before,
+.tree > li::after { display: none; }
 
 .node {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 6px;
+  white-space: nowrap;
 }
 .node.nonterminal {
   background: rgba(91, 140, 255, 0.15);
