@@ -1,0 +1,23 @@
+Ejemplo if
+inicio
+    doble @radio = 5.5 ;
+    doble @pi = 3.1416 ;
+    doble @area = 0 ;
+    
+    Si @radio > 0 entonces
+    {
+        @area = 95.14 ;
+        imprimir @area ;
+    }
+fin
+
+Ejemplo while
+inicio
+    ent @contador = 5 ;
+    
+    Mientras @contador > 0 hacer
+    {
+        imprimir @contador ;
+        @contador = @contador - 1 ;
+    } 
+fin

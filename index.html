@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analizador Lexico y Sintactico</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Analizador Lexico y Sintactico</h1>
+    <p class="subtitle">Compiladores - Simulacion de software (analizador lexico y sintactico)</p>
+  </header>
+
+  <main class="layout">
+    <!-- Columna izquierda: editor -->
+    <section class="panel editor-panel">
+      <div class="panel-head">
+        <h2>Codigo fuente</h2>
+        <div class="actions">
+          <button id="btnAnalizar" class="btn btn-primary">Analizar</button>
+          <button id="btnLimpiar" class="btn btn-ghost">Limpiar</button>
+        </div>
+      </div>
+
+      <div class="editor-wrap">
+        <div id="gutter" class="gutter" aria-hidden="true"></div>
+        <textarea id="codigo" class="editor" spellcheck="false" wrap="off"
+          placeholder="Escribe aqui tu codigo..."></textarea>
+      </div>
+
+      <div class="stats">
+        <span class="stat">Lineas analizadas: <strong id="numLineas">0</strong></span>
+        <span class="stat">Tokens: <strong id="numTokens">0</strong></span>
+        <span class="stat stat-error">Errores: <strong id="numErrores">0</strong></span>
+      </div>
+    </section>
+
+    <!-- Columna derecha: resultados -->
+    <section class="panel results-panel">
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-tab="tokens">Tokens</button>
+        <button class="tab" data-tab="simbolos">Tabla de simbolos</button>
+        <button class="tab" data-tab="errores">Errores</button>
+        <button class="tab" data-tab="arbol">Arbol sintactico</button>
+      </nav>
+
+      <div class="tab-content active" data-tab="tokens">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Lexema</th><th>Categoria lexica</th><th>Linea</th></tr>
+            </thead>
+            <tbody id="tablaTokens">
+              <tr><td colspan="4" class="empty">Sin analizar.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="simbolos">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Identificador</th><th>Tipo</th><th>Linea (decl.)</th><th>Valor inicial</th></tr>
+            </thead>
+            <tbody id="tablaSimbolos">
+              <tr><td colspan="5" class="empty">Sin analizar.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="errores">
+        <div id="listaErrores" class="errores">
+          <p class="empty">Sin analizar.</p>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="arbol">
+        <div id="arbol" class="arbol">
+          <p class="empty">Sin analizar.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Proyecto Compiladores - Ciclo VII</p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
