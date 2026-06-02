@@ -52,20 +52,3 @@ Simulacion de software para la materia de **Compiladores (Ciclo VII)**. Es una a
 <valorLogico> ::= <valor> <comparador> <valor>
 <valor>       ::= <id> | <constante>
 ```
-
-> Nota: la regla `<declarar>` admite una asignacion opcional para que los ejemplos del proyecto (ej. `doble @radio = 5.5 ;`) sean validos.
-
-## Como ejecutarlo localmente
-
-Solo abre `index.html` en el navegador. No requiere instalacion.
-
-## Publicacion en GitHub Pages (GitHub Actions)
-
-El repositorio incluye el workflow `.github/workflows/deploy.yml`, que publica el sitio automaticamente en cada `push` a la rama `main`.
-
-Pasos para activarlo (una sola vez):
-
-1. Sube el proyecto a tu repositorio de GitHub (push manual a `main`).
-2. En GitHub, ve a **Settings -> Pages**.
-3. En **Build and deployment -> Source**, selecciona **GitHub Actions**.
-4. Cada nuevo `push` a `main` desplegara la pagina; la URL aparece en la pestana **Actions** o en **Settings -> Pages**.
