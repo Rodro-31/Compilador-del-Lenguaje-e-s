@@ -505,6 +505,35 @@ $("#zoomReset").addEventListener("click", () => {
   aplicarZoom();
 });
 
+/* ---- Subpestañas del panel de Tokens ---- */
+document.querySelectorAll(".subtab").forEach((subtab) => {
+  subtab.addEventListener("click", () => {
+    const destino = subtab.dataset.subtab;
+    document.querySelectorAll(".subtab").forEach((s) => s.classList.toggle("active", s === subtab));
+    document.querySelectorAll(".subtab-content").forEach((c) =>
+      c.classList.toggle("active", c.dataset.subtab === destino)
+    );
+  });
+});
+
+/* ---- Tabla de categorias lexicas ---- */
+function renderCategorias() {
+  const tbody = $("#tablaCategorias");
+  if (!tbody) return;
+  const claves = Object.keys(NUMERO_CATEGORIA).sort(
+    (a, b) => NUMERO_CATEGORIA[a] - NUMERO_CATEGORIA[b]
+  );
+  tbody.innerHTML = claves
+    .map(
+      (clave) => `<tr>
+        <td>${NUMERO_CATEGORIA[clave]}</td>
+        <td>${NOMBRE_CATEGORIA[clave]}</td>
+        <td><code>${escapeHtml(ER[clave].source)}</code></td>
+      </tr>`
+    )
+    .join("");
+}
+
 /* ---- Botones ---- */
 $("#btnLimpiar").addEventListener("click", () => {
   editor.value = "";
@@ -654,3 +683,4 @@ function escapeHtml(str) {
 /* ---- Inicializacion ---- */
 editor.value = EJEMPLO_DEFECTO;
 actualizarGutter();
+renderCategorias();

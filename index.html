@@ -52,17 +52,34 @@
     <section class="panel">
       <div class="panel-head">
         <h2>Tokens generados</h2>
+        <div class="subtabs">
+          <button class="subtab active" data-subtab="tokens">Tokens</button>
+          <button class="subtab" data-subtab="categorias">Categorias lexicas</button>
+        </div>
       </div>
       <div class="panel-body">
-        <div class="table-scroll">
-          <table class="data-table">
-            <thead>
-              <tr><th>#</th><th>Lexema</th><th>Categoria lexica</th><th>Token</th><th>Linea</th></tr>
-            </thead>
-            <tbody id="tablaTokens">
-              <tr><td colspan="5" class="empty">Sin analizar.</td></tr>
-            </tbody>
-          </table>
+        <div class="subtab-content active" data-subtab="tokens">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr><th>#</th><th>Lexema</th><th>Categoria lexica</th><th>Token</th><th>Linea</th></tr>
+              </thead>
+              <tbody id="tablaTokens">
+                <tr><td colspan="5" class="empty">Sin analizar.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="subtab-content" data-subtab="categorias">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr><th>#</th><th>Categoria lexica</th><th>Expresion regular</th></tr>
+              </thead>
+              <tbody id="tablaCategorias"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>

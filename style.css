@@ -61,6 +61,26 @@ html, body {
 
 .actions { display: flex; gap: 8px; }
 
+/* Pestañas internas (subtabs) dentro de un panel */
+.subtabs { display: flex; gap: 4px; }
+.subtab {
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-dim);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.subtab:hover { color: var(--text); }
+.subtab.active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.subtab-content { display: none; }
+.subtab-content.active { display: block; }
+
 /* Barra de zoom del arbol */
 .zoom-bar {
   display: flex;
