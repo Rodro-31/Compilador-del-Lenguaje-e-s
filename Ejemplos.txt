@@ -21,3 +21,12 @@ inicio
         @contador = @contador - 1 ;
     } 
 fin
+
+Ejemplo de presentacion
+inicio
+    ent @x = 10 ;
+    Si @x == 10 entonces
+    {
+        @x = @x + 1 ;
+    }
+fin
