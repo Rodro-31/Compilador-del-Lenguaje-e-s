@@ -11,15 +11,13 @@ const RESERVADAS = ["ent", "doble", "imprimir", "leer", "Si", "entonces", "Mient
 const ER = {
   PalabraReservada: /^(ent|doble|imprimir|leer|Si|entonces|Mientras|hacer)$/,
   OperadorAritmetico: /^(\+|-|\*|\/|%|\^)$/,
-  Constante: /^-?[0-9]+(\.[0-9]+)?$/,
-  Identificador: /^@[a-zA-Z_][a-zA-Z0-9_]*$/,
-  SimboloAgrupacion: /^(\(|\))$/,
+  Constante: /^[0-9]+(\.[0-9]+)?$/,
+  Identificador: /^@[a-zA-Z][a-zA-Z0-9]*$/,
   Comparador: /^(==|<=|>=|!=|>|<)$/,
-  OperadorLogico: /^(&&|\|\|)$/,
   SimboloInicio: /^(\{|inicio)$/,
   Delimitador: /^(;|\}|fin)$/,
   OperadorAsignacion: /^=$/,
-  Literal: /^"[^"\n]*"$/,
+  Literal: /^"[a-zA-Z0-9]*"$/,
 };
 
 /* ============================================================
@@ -33,7 +31,7 @@ function analizarLexico(codigo) {
   let i = 0;
   const n = codigo.length;
 
-  const esLetra = (c) => /[a-zA-Z_]/.test(c);
+  const esLetra = (c) => /[a-zA-Z]/.test(c);
   const esDigito = (c) => /[0-9]/.test(c);
 
   while (i < n) {
@@ -62,20 +60,28 @@ function analizarLexico(codigo) {
         continue;
       }
       const lexema = codigo.slice(i, j + 1);
-      tokens.push(nuevoToken(lexema, "Literal", lineaTok));
+      if (ER.Literal.test(lexema)) {
+        tokens.push(nuevoToken(lexema, "Literal", lineaTok));
+      } else {
+        errores.push(
+          nuevoError("Lexico", `Literal invalido (solo letras y digitos entre comillas): "${lexema}"`, lineaTok)
+        );
+      }
       i = j + 1;
       continue;
     }
 
-    // --- Identificador @... ---
+    // --- Identificador @<letra>{<letra>|<digito>} ---
     if (c === "@") {
       let j = i + 1;
-      while (j < n && /[a-zA-Z0-9_]/.test(codigo[j])) j++;
+      while (j < n && /[a-zA-Z0-9]/.test(codigo[j])) j++;
       const lexema = codigo.slice(i, j);
       if (ER.Identificador.test(lexema)) {
         tokens.push(nuevoToken(lexema, "Identificador", lineaTok));
       } else {
-        errores.push(nuevoError("Lexico", `Identificador mal formado: "${lexema}"`, lineaTok));
+        errores.push(
+          nuevoError("Lexico", `Identificador mal formado (use @letra y luego letras o digitos): "${lexema}"`, lineaTok)
+        );
       }
       i = j;
       continue;
@@ -84,7 +90,7 @@ function analizarLexico(codigo) {
     // --- Palabra (reservada / inicio / fin) ---
     if (esLetra(c)) {
       let j = i;
-      while (j < n && /[a-zA-Z0-9_]/.test(codigo[j])) j++;
+      while (j < n && /[a-zA-Z]/.test(codigo[j])) j++;
       const lexema = codigo.slice(i, j);
       if (lexema === "inicio") {
         tokens.push(nuevoToken(lexema, "SimboloInicio", lineaTok));
@@ -108,7 +114,11 @@ function analizarLexico(codigo) {
         while (j < n && esDigito(codigo[j])) j++;
       }
       const lexema = codigo.slice(i, j);
-      tokens.push(nuevoToken(lexema, "Constante", lineaTok));
+      if (ER.Constante.test(lexema)) {
+        tokens.push(nuevoToken(lexema, "Constante", lineaTok));
+      } else {
+        errores.push(nuevoError("Lexico", `Constante mal formada: "${lexema}"`, lineaTok));
+      }
       i = j;
       continue;
     }
@@ -119,19 +129,29 @@ function analizarLexico(codigo) {
       tokens.push(nuevoToken(dos, "Comparador", lineaTok)); i += 2; continue;
     }
     if (dos === "&&" || dos === "||") {
-      tokens.push(nuevoToken(dos, "OperadorLogico", lineaTok)); i += 2; continue;
+      errores.push(nuevoError("Lexico", `El operador "${dos}" no esta definido en la gramatica`, lineaTok));
+      i += 2;
+      continue;
     }
 
     if (c === ">" || c === "<") { tokens.push(nuevoToken(c, "Comparador", lineaTok)); i++; continue; }
     if (c === "=") { tokens.push(nuevoToken(c, "OperadorAsignacion", lineaTok)); i++; continue; }
     if ("+-*/%^".includes(c)) { tokens.push(nuevoToken(c, "OperadorAritmetico", lineaTok)); i++; continue; }
-    if (c === "(" || c === ")") { tokens.push(nuevoToken(c, "SimboloAgrupacion", lineaTok)); i++; continue; }
+    if (c === "(" || c === ")") {
+      errores.push(nuevoError("Lexico", `El simbolo "${c}" no esta definido en la gramatica`, lineaTok));
+      i++;
+      continue;
+    }
     if (c === "{") { tokens.push(nuevoToken(c, "SimboloInicio", lineaTok)); i++; continue; }
     if (c === "}" || c === ";") { tokens.push(nuevoToken(c, "Delimitador", lineaTok)); i++; continue; }
 
     // Caracter no reconocido
-    if (c === "!" || c === "&" || c === "|") {
+    if (c === ".") {
+      errores.push(nuevoError("Lexico", `Constante mal formada (el punto debe ir entre digitos)`, lineaTok));
+    } else if (c === "!" || c === "&" || c === "|") {
       errores.push(nuevoError("Lexico", `Operador incompleto: "${c}"`, lineaTok));
+    } else if (c === "_") {
+      errores.push(nuevoError("Lexico", `El caracter "_" no esta permitido en identificadores ni palabras`, lineaTok));
     } else {
       errores.push(nuevoError("Lexico", `Caracter no reconocido: "${c}"`, lineaTok));
     }
@@ -154,28 +174,24 @@ const NOMBRE_CATEGORIA = {
   OperadorAritmetico: "Operador Aritmetico",
   Constante: "Constante",
   Identificador: "Identificador",
-  SimboloAgrupacion: "Simbolo de Agrupacion",
   Comparador: "Comparador",
-  OperadorLogico: "Operador Logico",
   SimboloInicio: "Simbolo de Inicio",
   Delimitador: "Delimitador",
   OperadorAsignacion: "Operador de Asignacion",
   Literal: "Literal",
 };
 
-/* Numero de cada categoria para construir el token */
+/* Numero de cada categoria para construir el token (segun gramatica del lenguaje) */
 const NUMERO_CATEGORIA = {
   PalabraReservada: 1,
   OperadorAritmetico: 2,
   Constante: 3,
   Identificador: 4,
-  SimboloAgrupacion: 5,
-  Comparador: 6,
-  OperadorLogico: 7,
-  SimboloInicio: 8,
-  Delimitador: 9,
-  OperadorAsignacion: 10,
-  Literal: 11,
+  Comparador: 5,
+  SimboloInicio: 6,
+  Delimitador: 7,
+  OperadorAsignacion: 8,
+  Literal: 9,
 };
 
 const pad3 = (n) => String(n).padStart(3, "0");
@@ -298,9 +314,12 @@ function analizarSintactico(tokens) {
     throw new ParseError(`Se esperaba "}" o "fin" pero se encontro "${t.lexema}"`, t.linea);
   }
 
-  // <instruccion> ::= <sentencia> <instruccion> | <sentencia>
+  // <instruccion> ::= <sentencia> <instruccion> | <sentencia>  (al menos una sentencia)
   function instruccion() {
     const nodoInstr = nodo("instruccion");
+    if (fin() || esFinal()) {
+      throw new ParseError("Se esperaba al menos una sentencia", lineaActual());
+    }
     do {
       nodoInstr.children.push(sentencia());
     } while (!fin() && !esFinal());
@@ -384,12 +403,12 @@ function analizarSintactico(tokens) {
     return nodoCA;
   }
 
-  // <mostrar> ::= imprimir <valor> | <literal> <delimitador>
+  // <mostrar> ::= imprimir (<valor> | <literal>) <delimitador>
   function mostrar() {
     const nodoMos = nodo("mostrar");
     nodoMos.children.push(esperaLexema("imprimir"));
     if (!fin() && actual().categoria === "Literal") {
-      nodoMos.children.push(nodo("literal", false, [esperaCategoria("Literal", "un literal")]));
+      nodoMos.children.push(nodo("literal", false, [esperaCategoria("Literal", 'un literal ("letras o digitos")')]));
     } else {
       nodoMos.children.push(valor());
     }
