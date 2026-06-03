@@ -64,7 +64,11 @@ function analizarLexico(codigo) {
         tokens.push(nuevoToken(lexema, "Literal", lineaTok));
       } else {
         errores.push(
-          nuevoError("Lexico", `Literal invalido (solo letras y digitos entre comillas): "${lexema}"`, lineaTok)
+          nuevoError(
+            "Lexico",
+            `Literal invalido (comillas obligatorias; solo letras o digitos, puede ser vacio ""): "${lexema}"`,
+            lineaTok
+          )
         );
       }
       i = j + 1;
@@ -403,16 +407,26 @@ function analizarSintactico(tokens) {
     return nodoCA;
   }
 
-  // <mostrar> ::= imprimir (<valor> | <literal>) <delimitador>
+  // <literal> ::= "{<letra>|<digito>}"<delimitador>  (vacio "" permitido, siempre con comillas)
+  function literal() {
+    const nodoLit = nodo("literal");
+    nodoLit.children.push(
+      esperaCategoria("Literal", 'un literal entre comillas (puede ser "")')
+    );
+    nodoLit.children.push(esperaLexema(";"));
+    return nodoLit;
+  }
+
+  // <mostrar> ::= imprimir <valor> <delimitador> | imprimir <literal>
   function mostrar() {
     const nodoMos = nodo("mostrar");
     nodoMos.children.push(esperaLexema("imprimir"));
     if (!fin() && actual().categoria === "Literal") {
-      nodoMos.children.push(nodo("literal", false, [esperaCategoria("Literal", 'un literal ("letras o digitos")')]));
+      nodoMos.children.push(literal());
     } else {
       nodoMos.children.push(valor());
+      nodoMos.children.push(esperaLexema(";"));
     }
-    nodoMos.children.push(esperaLexema(";"));
     return nodoMos;
   }
 

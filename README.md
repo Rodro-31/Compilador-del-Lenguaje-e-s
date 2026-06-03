@@ -54,13 +54,15 @@ Simulacion de software para la materia de **Compiladores (Ciclo VII)**. Es una a
 <asignacion>   ::= <id> <compleAsig> <delimitador>
 <compleAsig>   ::= = <valor> { <operador> <valor> }
 <operador>     ::= + | - | * | / | % | ^
-<mostrar>      ::= imprimir <valor> | imprimir <literal> <delimitador>
+<mostrar>      ::= imprimir <valor> <delimitador> | imprimir <literal>
 <solicitar>    ::= leer <id> <delimitador>
-<literal>      ::= " <letra> { <letra> | <digito> } "
+<literal>      ::= "{<letra> | <digito>}" <delimitador>
 ```
 
 Notas:
 - `{<compleAsig>}` en `<declarar>` es **opcional** (0 o 1 vez): permite `ent @x ;` y `ent @x = 10 ;`.
+- `<literal>` admite cadena **vacia** con comillas obligatorias: `imprimir "" ;`.
+- El `<delimitador>` de `<literal>` es el `;` final; en `imprimir <valor>` el `;` va aparte (misma regla, distinta rama).
 - `<instruccion>` exige **al menos una** `<sentencia>` (no se aceptan bloques vacios `{ }`).
 - El token lexico se forma con 3 digitos de categoria + 3 digitos de ocurrencia (ej. `005001` = primer comparador).
 
