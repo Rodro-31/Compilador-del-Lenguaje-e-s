@@ -182,7 +182,7 @@ const pad3 = (n) => String(n).padStart(3, "0");
 
 /* ============================================================
    TABLA DE SIMBOLOS
-   Detecta declaraciones: (ent|doble) @id [ = valor ... ] ;
+   Detecta declaraciones: (ent|doble) @id [ compleAsig ] ;
    ============================================================ */
 function construirTablaSimbolos(tokens) {
   const tabla = [];
@@ -325,7 +325,7 @@ function analizarSintactico(tokens) {
     throw new ParseError(`Inicio de sentencia no valido: "${t.lexema}"`, t.linea);
   }
 
-  // <declarar> ::= <tipo> <id> [ = <valor> {<operador><valor>} ] <delimitador>
+  // <declarar> ::= <tipo> <id> {<compleAsig>} <delimitador>  ({compleAsig} opcional: 0 o 1)
   function declarar() {
     const nodoDec = nodo("declarar");
     const tipo = actual();
@@ -333,8 +333,7 @@ function analizarSintactico(tokens) {
     pos++;
     nodoDec.children.push(esperaCategoria("Identificador", "un identificador (@nombre)"));
     if (!fin() && actual().categoria === "OperadorAsignacion") {
-      nodoDec.children.push(esperaCategoria("OperadorAsignacion", '"="'));
-      nodoDec.children.push(valorExpr());
+      nodoDec.children.push(compleAsig());
     }
     nodoDec.children.push(esperaLexema(";"));
     return nodoDec;
@@ -364,17 +363,28 @@ function analizarSintactico(tokens) {
     return nodoCic;
   }
 
-  // <asignacion> ::= <id> = <valor> {<operador><valor>} <delimitador>
+  // <asignacion> ::= <id> <compleAsig> <delimitador>
   function asignacion() {
     const nodoAsig = nodo("asignacion");
     nodoAsig.children.push(esperaCategoria("Identificador", "un identificador (@nombre)"));
-    nodoAsig.children.push(esperaCategoria("OperadorAsignacion", '"="'));
-    nodoAsig.children.push(valorExpr());
+    nodoAsig.children.push(compleAsig());
     nodoAsig.children.push(esperaLexema(";"));
     return nodoAsig;
   }
 
-  // <mostrar> ::= imprimir (<valor> | <literal>) <delimitador>
+  // <compleAsig> ::= "=" <valor> {<operador><valor>}
+  function compleAsig() {
+    const nodoCA = nodo("compleAsig");
+    nodoCA.children.push(esperaCategoria("OperadorAsignacion", '"="'));
+    nodoCA.children.push(valor());
+    while (!fin() && actual().categoria === "OperadorAritmetico") {
+      nodoCA.children.push(nodo("operador", false, [esperaCategoria("OperadorAritmetico", "un operador aritmetico")]));
+      nodoCA.children.push(valor());
+    }
+    return nodoCA;
+  }
+
+  // <mostrar> ::= imprimir <valor> | <literal> <delimitador>
   function mostrar() {
     const nodoMos = nodo("mostrar");
     nodoMos.children.push(esperaLexema("imprimir"));
@@ -405,18 +415,7 @@ function analizarSintactico(tokens) {
     return nodoVL;
   }
 
-  // <valor> {<operador><valor>}  (expresion aritmetica)
-  function valorExpr() {
-    const nodoExpr = nodo("expresion");
-    nodoExpr.children.push(valor());
-    while (!fin() && actual().categoria === "OperadorAritmetico") {
-      nodoExpr.children.push(nodo("operador", false, [esperaCategoria("OperadorAritmetico", "un operador aritmetico")]));
-      nodoExpr.children.push(valor());
-    }
-    return nodoExpr;
-  }
-
-  // <valor> ::= <id> | <constante>
+  // <valor> ::= <id> | <digito> {<digito>} | <digito> {<digito>} "." <digito> {<digito>}
   function valor() {
     if (fin()) throw new ParseError(`Se esperaba un valor (identificador o numero)`, lineaFinal());
     const t = actual();
