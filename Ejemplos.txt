@@ -27,6 +27,6 @@ inicio
     ent @x = 10 ;
     Si @x == 10 entonces
     {
-        @x = @x + 1 ;
+        imprimir @x ;
     }
 fin
